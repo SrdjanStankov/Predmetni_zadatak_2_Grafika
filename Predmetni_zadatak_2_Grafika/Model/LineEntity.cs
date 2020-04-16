@@ -4,8 +4,6 @@ namespace Predmetni_zadatak_2_Grafika.Model
 {
     public class LineEntity
     {
-        private long secondEnd;
-
         public LineEntity()
         {
 
@@ -27,7 +25,7 @@ namespace Predmetni_zadatak_2_Grafika.Model
 
         public long FirstEnd { get; set; }
 
-        public long SecondEnd { get => secondEnd; set => secondEnd = value; }
+        public long SecondEnd { get; set; }
 
         public List<Point> Vertices { get; set; }
     }
