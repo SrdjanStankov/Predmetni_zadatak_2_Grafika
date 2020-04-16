@@ -9,6 +9,7 @@
  Title="MainWindow"
  Width="800"
  Height="450"
+ Loaded="window_Loaded"
  mc:Ignorable="d">
     <Grid x:Name="grid" />
 </Window>
