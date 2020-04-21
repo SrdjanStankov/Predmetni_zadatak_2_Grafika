@@ -8,8 +8,15 @@
  Name="window"
  Title="MainWindow"
  Width="800"
- Height="450"
+ Height="800"
  Loaded="window_Loaded"
  mc:Ignorable="d">
-    <Grid x:Name="grid" />
+    <Grid x:Name="grid">
+        <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+            <Canvas
+             x:Name="canv"
+             Width="2000"
+             Height="2000" />
+        </ScrollViewer>
+    </Grid>
 </Window>
