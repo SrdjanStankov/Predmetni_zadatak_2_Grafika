@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
+using System.Linq;
 using Predmetni_zadatak_2_Grafika.Model;
 
 namespace Predmetni_zadatak_2_Grafika.Services
@@ -65,7 +66,7 @@ namespace Predmetni_zadatak_2_Grafika.Services
         {
             foreach (XmlNode item in nodeList)
             {
-                entites.Add(new LineEntity()
+                var line = new LineEntity()
                 {
                     Id = long.Parse(item.SelectSingleNode("Id").InnerText, CultureInfo.InvariantCulture),
                     Name = item.SelectSingleNode("Name").InnerText,
@@ -76,7 +77,12 @@ namespace Predmetni_zadatak_2_Grafika.Services
                     ThermalConstantHeat = long.Parse(item.SelectSingleNode("ThermalConstantHeat").InnerText, CultureInfo.InvariantCulture),
                     FirstEnd = long.Parse(item.SelectSingleNode("FirstEnd").InnerText, CultureInfo.InvariantCulture),
                     SecondEnd = long.Parse(item.SelectSingleNode("SecondEnd").InnerText, CultureInfo.InvariantCulture)
-                });
+                };
+                if (entites.Any((ent) => ent.FirstEnd == line.SecondEnd && ent.SecondEnd == line.FirstEnd))
+                {
+                    continue;
+                }
+                entites.Add(line);
             }
         }
 
