@@ -110,6 +110,28 @@ namespace Predmetni_zadatak_2_Grafika
                 Canvas.SetTop(element, item.Y);
                 canv.Children.Add(element);
             }
+
+            foreach (var item in lineEntities)
+            {
+                var element = new Line() { Stroke = Brushes.Black };
+                (element.X1, element.Y1) = FindElemt(item.FirstEnd);
+                (element.X2, element.Y2) = FindElemt(item.SecondEnd);
+                if (element.X1 == 0 || element.X2 == 0 || element.Y1 == 0 || element.Y2 == 0)
+                {
+                    continue;
+                }
+                canv.Children.Add(element);
+            }
+        }
+
+        private (double, double) FindElemt(long id)
+        {
+            return substationEntities.Find((item) => item.Id == id) != null
+                ? (substationEntities.Find((item) => item.Id == id).X + (5 / 2), substationEntities.Find((item) => item.Id == id).Y + (5 / 2))
+                : nodeEntities.Find((item) => item.Id == id) != null
+                ? (nodeEntities.Find((item) => item.Id == id).X + (5 / 2), nodeEntities.Find((item) => item.Id == id).Y + (5 / 2))
+                : switchEntities.Find((item) => item.Id == id) != null 
+                ? (switchEntities.Find((item) => item.Id == id).X + (5 / 2), switchEntities.Find((item) => item.Id == id).Y + (5 / 2)) : (0, 0);
         }
     }
 }
