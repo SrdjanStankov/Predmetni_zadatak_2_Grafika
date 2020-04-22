@@ -65,7 +65,6 @@ namespace Predmetni_zadatak_2_Grafika.Services
         {
             foreach (XmlNode item in nodeList)
             {
-                ToLatLon(double.Parse(item.SelectSingleNode("X").InnerText, CultureInfo.InvariantCulture), double.Parse(item.SelectSingleNode("Y").InnerText, CultureInfo.InvariantCulture), 34, out double x, out double y);
                 entites.Add(new LineEntity()
                 {
                     Id = long.Parse(item.SelectSingleNode("Id").InnerText, CultureInfo.InvariantCulture),

@@ -21,6 +21,7 @@ namespace Predmetni_zadatak_2_Grafika
         private List<SubstationEntity> substationEntities = new List<SubstationEntity>();
         private List<NodeEntity> nodeEntities = new List<NodeEntity>();
         private List<SwitchEntity> switchEntities = new List<SwitchEntity>();
+        private List<LineEntity> lineEntities = new List<LineEntity>();
         private double xScale;
         private double yScale;
         private double size = 10;
@@ -52,6 +53,7 @@ namespace Predmetni_zadatak_2_Grafika
             Common.AddEntities(substationEntities, doc.DocumentElement.SelectNodes("/NetworkModel/Substations/SubstationEntity"));
             Common.AddEntities(nodeEntities, doc.DocumentElement.SelectNodes("/NetworkModel/Nodes/NodeEntity"));
             Common.AddEntities(switchEntities, doc.DocumentElement.SelectNodes("/NetworkModel/Switches/SwitchEntity"));
+            Common.AddEntities(lineEntities, doc.DocumentElement.SelectNodes("/NetworkModel/Lines/LineEntity"));
         }
 
 
