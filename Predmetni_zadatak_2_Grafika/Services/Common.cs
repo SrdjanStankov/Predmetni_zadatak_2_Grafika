@@ -95,7 +95,9 @@ namespace Predmetni_zadatak_2_Grafika.Services
             }
 
             double newX = x - size;
+            newX = (newX < 0) ? 2000 : newX;
             double newY = y - size;
+            newY = (newY < 0) ? 2000 : newY;
 
             while (usedCoords.Contains((newX, newY)))
             {
