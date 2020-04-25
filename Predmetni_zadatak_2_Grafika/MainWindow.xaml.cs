@@ -34,7 +34,7 @@ namespace Predmetni_zadatak_2_Grafika
         {
             InitializeComponent();
 
-            matrix = new char[(int)(canv.Width / size) + 1, (int)(canv.Height / size) + 1];
+            matrix = new char[(int)(canv.Width / (size / 2)) + 1, (int)(canv.Height / (size / 2)) + 1];
 
             LoadXml();
             SetScale();
@@ -83,21 +83,21 @@ namespace Predmetni_zadatak_2_Grafika
                 double x = Util.ConvertToCanvas(item.X, xScale, xMin, size, canv.Width);
                 double y = Util.ConvertToCanvas(item.Y, yScale, yMin, size, canv.Width);
                 (item.X, item.Y) = Util.FindClosestXY(x, y, size);
-                matrix[(int)(item.X / size), (int)(item.Y / size)] = 'o';
+                matrix[(int)(item.X / (size / 2)), (int)(item.Y / (size / 2))] = 'o';
             }
             foreach (var item in nodeEntities)
             {
                 double x = Util.ConvertToCanvas(item.X, xScale, xMin, size, canv.Width);
                 double y = Util.ConvertToCanvas(item.Y, yScale, yMin, size, canv.Width);
                 (item.X, item.Y) = Util.FindClosestXY(x, y, size);
-                matrix[(int)(item.X / size), (int)(item.Y / size)] = 'o';
+                matrix[(int)(item.X / (size / 2)), (int)(item.Y / (size / 2))] = 'o';
             }
             foreach (var item in switchEntities)
             {
                 double x = Util.ConvertToCanvas(item.X, xScale, xMin, size, canv.Width);
                 double y = Util.ConvertToCanvas(item.Y, yScale, yMin, size, canv.Width);
                 (item.X, item.Y) = Util.FindClosestXY(x, y, size);
-                matrix[(int)(item.X / size), (int)(item.Y / size)] = 'o';
+                matrix[(int)(item.X / (size / 2)), (int)(item.Y / (size / 2))] = 'o';
             }
         }
 
@@ -126,7 +126,7 @@ namespace Predmetni_zadatak_2_Grafika
                 Canvas.SetTop(element, item.Y);
                 canv.Children.Add(element);
             }
-
+            int counter = 0;
             foreach (var item in lineEntities)
             {
                 (double x1, double y1) = FindElemt(item.FirstEnd);
@@ -140,8 +140,8 @@ namespace Predmetni_zadatak_2_Grafika
                 {
                     vert.Parent = null;
                 }
-
-                var path = Util.SearchBFS(vertMatrix, vertMatrix[(int)(x1 / size), (int)(y1 / size)], vertMatrix[(int)(x2 / size), (int)(y2 / size)]);
+                // Total 2223
+                var path = Util.SearchBFS(vertMatrix, vertMatrix[(int)(x1 / (size / 2)), (int)(y1 / (size / 2))], vertMatrix[(int)(x2 / (size / 2)), (int)(y2 / (size / 2))], false);
 
                 if (path != null)
                 {
@@ -150,18 +150,23 @@ namespace Predmetni_zadatak_2_Grafika
                         var l = new Line
                         {
                             Stroke = Brushes.Black,
-                            X1 = (path[i].X * size) + (5 / 2),
-                            Y1 = (path[i].Y * size) + (5 / 2),
+                            X1 = (path[i].X * (size / 2)) + (5 / 2),
+                            Y1 = (path[i].Y * (size / 2)) + (5 / 2),
 
-                            X2 = (path[i + 1].X * size) + (5 / 2),
-                            Y2 = (path[i + 1].Y * size) + (5 / 2),
+                            X2 = (path[i + 1].X * (size / 2)) + (5 / 2),
+                            Y2 = (path[i + 1].Y * (size / 2)) + (5 / 2),
                             StrokeThickness = 1
                         };
 
                         canv.Children.Add(l);
                     }
                 }
+                else
+                {
+                    counter++;
+                }
             }
+            Console.WriteLine($"Nulls: {counter}");
         }
 
         private (double, double) FindElemt(long id)
