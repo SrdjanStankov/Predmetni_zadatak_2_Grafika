@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Xml;
+using System.IO;
 using System.Linq;
+using System.Xml;
 using Predmetni_zadatak_2_Grafika.Model;
 
 namespace Predmetni_zadatak_2_Grafika.Services
 {
-    public static class Common
+    public static class Util
     {
+        private static StreamWriter stream = new StreamWriter("D:\\FTN\\Grafika\\Predmetni_zadatak_2_Grafika\\Predmetni_zadatak_2_Grafika\\bin\\Debug\\Error.txt", true) { AutoFlush = true };
+
         private static HashSet<(double, double)> usedCoords = new HashSet<(double, double)>();
 
         public static double ConvertToCanvas(double point, double scale, double start, double size, double width)
@@ -125,6 +128,164 @@ namespace Predmetni_zadatak_2_Grafika.Services
             usedCoords.Add((newX, newY));
             return (newX, newY);
         }
+
+        public static List<Vertex> SearchBFS(Vertex[,] graph, Vertex root, Vertex end)
+        {
+            var visited = new HashSet<ValueTuple<int, int>>();
+            var Q = new Queue<Vertex>();
+            visited.Add((root.X, root.Y));
+            Q.Enqueue(root);
+
+            while (Q.Count > 0)
+            {
+                var current = Q.Dequeue();
+
+                if (current.X == end.X && current.Y == end.Y)
+                {
+                    var ret = new List<Vertex>(visited.Count / 2);
+                    var vert = current;
+                    ret.Add(vert);
+                    while (vert.Parent != null)
+                    {
+                        ret.Add(vert.Parent);
+                        vert = vert.Parent;
+                    }
+                    ret.Reverse();
+                    return ret;
+                }
+
+                foreach (var item in AdjacentTo(graph, current))
+                {
+                    if (!visited.Contains((item.X, item.Y)))
+                    {
+                        if (item.X == end.X && item.Y == end.Y)
+                        {
+                            visited.Add((item.X, item.Y));
+                            item.Parent = current;
+                            Q.Enqueue(item);
+                            break;
+                        }
+                        if (item.Data == 'o')
+                        {
+                            continue;
+                        }
+                        visited.Add((item.X, item.Y));
+                        item.Parent = current;
+                        Q.Enqueue(item);
+                    }
+                }
+            }
+            return null;
+        }
+        private static List<Vertex> AdjacentTo(Vertex[,] graph, Vertex current)
+        {
+            var returnList = new List<Vertex>(4);
+
+            if (current.X - 1 >= 0)
+            {
+                var item = graph[current.X - 1, current.Y];
+                returnList.Add(item);
+            }
+            if (current.X + 1 < graph.GetLength(0))
+            {
+                var item = graph[current.X + 1, current.Y];
+                returnList.Add(item);
+            }
+            if (current.Y - 1 >= 0)
+            {
+                var item = graph[current.X, current.Y - 1];
+                returnList.Add(item);
+            }
+            if (current.Y + 1 < graph.GetLength(1))
+            {
+                var item = graph[current.X, current.Y + 1];
+                returnList.Add(item);
+            }
+            return returnList;
+        }
+
+        public static List<(double, double)> Search((double, double) startPoint, (double, double) endPoint)
+        {
+            var visitedPoints = new List<(double, double)>();
+            var currentPos = startPoint;
+            Console.SetOut(stream);
+
+            visitedPoints.Add(startPoint);
+            while (currentPos.Item1 != endPoint.Item1 || currentPos.Item2 != endPoint.Item2)
+            {
+                // infinite recursion break
+                if (visitedPoints.Count > 400)
+                {
+                    Console.WriteLine($"Stuck: {startPoint} - {endPoint}");
+                    return null;
+                }
+
+                // ide po X
+                var potentialPos = (currentPos.Item1 > endPoint.Item1 ? currentPos.Item1 - 10 : currentPos.Item1 + 10, currentPos.Item2);
+                if (!usedCoords.Contains(potentialPos) && currentPos.Item1 != endPoint.Item1 && !visitedPoints.Contains(potentialPos))
+                {
+                    visitedPoints.Add(potentialPos);
+                    currentPos = potentialPos;
+                    continue;
+                }
+                potentialPos = (potentialPos.Item1 <= endPoint.Item1 ? potentialPos.Item1 - 20 : potentialPos.Item1 + 20, potentialPos.Item2);
+                if (!usedCoords.Contains(potentialPos) && currentPos.Item1 != endPoint.Item1 && !visitedPoints.Contains(potentialPos))
+                {
+                    visitedPoints.Add(potentialPos);
+                    currentPos = potentialPos;
+                    continue;
+                }
+
+                // ne moze vise po X
+                potentialPos = (currentPos.Item1, currentPos.Item2 > endPoint.Item2 ? currentPos.Item2 - 10 : currentPos.Item2 + 10);
+                if (!usedCoords.Contains(potentialPos) && currentPos.Item2 != endPoint.Item2 && !visitedPoints.Contains(potentialPos))
+                {
+                    visitedPoints.Add(potentialPos);
+                    currentPos = potentialPos;
+                    continue;
+                }
+                potentialPos = (potentialPos.Item1, potentialPos.Item2 <= endPoint.Item2 ? potentialPos.Item2 - 20 : potentialPos.Item2 + 20);
+                if (!usedCoords.Contains(potentialPos) && currentPos.Item2 != endPoint.Item2 && !visitedPoints.Contains(potentialPos))
+                {
+                    visitedPoints.Add(potentialPos);
+                    currentPos = potentialPos;
+                    continue;
+                }
+
+                // ne moze ni po Y
+                Console.WriteLine($"No XY: {startPoint} - {endPoint}");
+                return null;
+            }
+
+            return visitedPoints;
+        }
+
+        public static List<(double, double)> SearchOld((double, double) startPoint, (double, double) endPoint)
+        {
+            var visitedPoints = new List<(double, double)>();
+
+            var currentPos = startPoint;
+
+            //Level in Y
+            while (currentPos.Item2 != endPoint.Item2)
+            {
+                visitedPoints.Add((currentPos.Item1, currentPos.Item2));
+                currentPos.Item2 += currentPos.Item2 > endPoint.Item2 ? -10 : 10;
+            }
+            //Level in X
+            while (currentPos.Item1 != endPoint.Item1)
+            {
+                visitedPoints.Add((currentPos.Item1, currentPos.Item2));
+                currentPos.Item1 += currentPos.Item1 > endPoint.Item1 ? -10 : 10;
+            }
+
+            visitedPoints.Add((currentPos.Item1, currentPos.Item2));
+
+            usedCoords.UnionWith(visitedPoints);
+
+            return visitedPoints;
+        }
+
 
         public static void ToLatLon(double utmX, double utmY, int zoneUTM, out double latitude, out double longitude)
         {
