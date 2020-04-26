@@ -141,7 +141,7 @@ namespace Predmetni_zadatak_2_Grafika
                     vert.Parent = null;
                 }
                 // Total 2223
-                var path = Util.SearchBFS(vertMatrix, vertMatrix[(int)(x1 / (size / 2)), (int)(y1 / (size / 2))], vertMatrix[(int)(x2 / (size / 2)), (int)(y2 / (size / 2))], false);
+                var path = Util.SearchBFS(vertMatrix, vertMatrix[(int)(x1 / (size / 2)), (int)(y1 / (size / 2))], vertMatrix[(int)(x2 / (size / 2)), (int)(y2 / (size / 2))]);
 
                 if (path != null)
                 {

@@ -129,7 +129,7 @@ namespace Predmetni_zadatak_2_Grafika.Services
             return (newX, newY);
         }
 
-        public static List<Vertex> SearchBFS(Vertex[,] graph, Vertex root, Vertex end, bool oneLine = false)
+        public static List<Vertex> SearchBFS(Vertex[,] graph, Vertex root, Vertex end)
         {
             var visited = new HashSet<ValueTuple<int, int>>();
             var Q = new Queue<Vertex>();
@@ -166,7 +166,7 @@ namespace Predmetni_zadatak_2_Grafika.Services
                             Q.Enqueue(item);
                             break;
                         }
-                        if (item.Data == 'o' || (item.Data == 'v' && oneLine))
+                        if (item.Data == 'o' || item.Data == 'v')
                         {
                             continue;
                         }
