@@ -129,30 +129,40 @@ namespace Predmetni_zadatak_2_Grafika.Services
             return (newX, newY);
         }
 
-        public static List<Vertex> SearchBFS(Vertex[,] graph, Vertex root, Vertex end)
+        public static (List<(double, double)> intersections, List<List<Vertex>> pathsIntersection) SearchBFSIntersection(Vertex[,] graph, Vertex root, Vertex end)
         {
             var visited = new HashSet<ValueTuple<int, int>>();
-            var Q = new Queue<Vertex>();
+            var neighboursToCheck = new Queue<Vertex>();
             visited.Add((root.X, root.Y));
-            Q.Enqueue(root);
+            neighboursToCheck.Enqueue(root);
 
-            while (Q.Count > 0)
+            while (neighboursToCheck.Count > 0)
             {
-                var current = Q.Dequeue();
+                var current = neighboursToCheck.Dequeue();
 
                 if (current.X == end.X && current.Y == end.Y)
                 {
-                    var ret = new List<Vertex>(visited.Count / 2);
+                    var pathDevidedByIntersections = new List<List<Vertex>>();
+                    int index = 0;
+                    pathDevidedByIntersections.Add(new List<Vertex>());
+                    var intersections = new List<(double, double)>();
                     var vert = current;
-                    ret.Add(vert);
                     while (vert.Parent != null)
                     {
+                        pathDevidedByIntersections[index].Add(vert);
+                        if (vert.Data == 'v' && vert.Parent.Data == 0 && !intersections.Contains((vert.X, vert.Y)))
+                        {
+                            intersections.Add((vert.X, vert.Y));
+                            vert.Data = 'i';
+                            index++;
+                            pathDevidedByIntersections.Add(new List<Vertex>());
+                        }
+
+                        pathDevidedByIntersections[index].Add(vert); 
                         vert.Data = vert.Data == 0 ? 'v' : vert.Data;
-                        ret.Add(vert.Parent);
                         vert = vert.Parent;
                     }
-                    ret.Reverse();
-                    return ret;
+                    return (intersections, pathDevidedByIntersections);
                 }
 
                 foreach (var item in AdjacentTo(graph, current))
@@ -163,7 +173,58 @@ namespace Predmetni_zadatak_2_Grafika.Services
                         {
                             visited.Add((item.X, item.Y));
                             item.Parent = current;
-                            Q.Enqueue(item);
+                            neighboursToCheck.Enqueue(item);
+                            break;
+                        }
+                        if (item.Data == 'o')
+                        {
+                            continue;
+                        }
+
+                        visited.Add((item.X, item.Y));
+                        item.Parent = current;
+                        neighboursToCheck.Enqueue(item);
+                    }
+                }
+            }
+            return (null, null);
+        }
+
+        public static List<Vertex> SearchBFS(Vertex[,] graph, Vertex root, Vertex end)
+        {
+            var visited = new HashSet<ValueTuple<int, int>>();
+            var neighboursToCheck = new Queue<Vertex>();
+            visited.Add((root.X, root.Y));
+            neighboursToCheck.Enqueue(root);
+
+            while (neighboursToCheck.Count > 0)
+            {
+                var current = neighboursToCheck.Dequeue();
+
+                if (current.X == end.X && current.Y == end.Y)
+                {
+                    var path = new List<Vertex>(visited.Count / 2);
+                    var vert = current;
+                    path.Add(vert);
+                    while (vert.Parent != null)
+                    {
+                        vert.Data = vert.Data == 0 ? 'v' : vert.Data;
+                        path.Add(vert.Parent);
+                        vert = vert.Parent;
+                    }
+                    path.Reverse();
+                    return path;
+                }
+
+                foreach (var item in AdjacentTo(graph, current))
+                {
+                    if (!visited.Contains((item.X, item.Y)))
+                    {
+                        if (item.X == end.X && item.Y == end.Y)
+                        {
+                            visited.Add((item.X, item.Y));
+                            item.Parent = current;
+                            neighboursToCheck.Enqueue(item);
                             break;
                         }
                         if (item.Data == 'o' || item.Data == 'v')
@@ -173,7 +234,7 @@ namespace Predmetni_zadatak_2_Grafika.Services
 
                         visited.Add((item.X, item.Y));
                         item.Parent = current;
-                        Q.Enqueue(item);
+                        neighboursToCheck.Enqueue(item);
                     }
                 }
             }

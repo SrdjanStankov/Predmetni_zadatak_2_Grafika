@@ -22,6 +22,8 @@ namespace Predmetni_zadatak_2_Grafika
         private List<NodeEntity> nodeEntities = new List<NodeEntity>();
         private List<SwitchEntity> switchEntities = new List<SwitchEntity>();
         private List<LineEntity> lineEntities = new List<LineEntity>();
+        private List<Line> drawinLines = new List<Line>();
+        private LineEqualityComparer lineEqualityComparer = new LineEqualityComparer();
         private char[,] matrix;
         private Vertex[,] vertMatrix;
         private double xScale;
@@ -126,7 +128,7 @@ namespace Predmetni_zadatak_2_Grafika
                 Canvas.SetTop(element, item.Y);
                 canv.Children.Add(element);
             }
-            int counter = 0;
+            var nullLineEntites = new List<LineEntity>(50);
             foreach (var item in lineEntities)
             {
                 (double x1, double y1) = FindElemt(item.FirstEnd);
@@ -157,16 +159,72 @@ namespace Predmetni_zadatak_2_Grafika
                             Y2 = (path[i + 1].Y * (size / 2)) + (5 / 2),
                             StrokeThickness = 1
                         };
-
+                        drawinLines.Add(l);
                         canv.Children.Add(l);
                     }
                 }
                 else
                 {
-                    counter++;
+                    nullLineEntites.Add(item);
                 }
             }
-            Console.WriteLine($"Nulls: {counter}");
+
+            foreach (var item in nullLineEntites)
+            {
+                (double x1, double y1) = FindElemt(item.FirstEnd);
+                (double x2, double y2) = FindElemt(item.SecondEnd);
+                if (x1 == 0 || x2 == 0 || y1 == 0 || y2 == 0)
+                {
+                    continue;
+                }
+
+                foreach (var vert in vertMatrix)
+                {
+                    vert.Parent = null;
+                }
+
+                var path = Util.SearchBFSIntersection(vertMatrix, vertMatrix[(int)(x1 / (size / 2)), (int)(y1 / (size / 2))], vertMatrix[(int)(x2 / (size / 2)), (int)(y2 / (size / 2))]);
+
+                for (int i = 0; i < path.intersections.Count - 1; i++)
+                {
+                    var e = new Ellipse
+                    {
+                        Width = 5,
+                        Height = 5,
+                        Fill = Brushes.Gold
+                    };
+                    Canvas.SetLeft(e, path.intersections[i].Item1 * (size / 2));
+                    Canvas.SetTop(e, path.intersections[i].Item2 * (size / 2));
+                    canv.Children.Add(e);
+                }
+
+                for (int i = 0; i < path.pathsIntersection.Count; i++)
+                {
+                    for (int j = 0; j < path.pathsIntersection[i].Count; j++)
+                    {
+                        var l = new Line
+                        {
+                            Stroke = Brushes.DarkCyan,
+                            X1 = (path.pathsIntersection[i][j].X * (size / 2)) + (5 / 2),
+                            Y1 = (path.pathsIntersection[i][j].Y * (size / 2)) + (5 / 2),
+                            StrokeThickness = 1
+                        };
+                        if (j + 1 == path.pathsIntersection[i].Count)
+                        {
+                            l.X2 = (path.pathsIntersection[i][j].X * (size / 2)) + (5 / 2);
+                            l.Y2 = (path.pathsIntersection[i][j].Y * (size / 2)) + (5 / 2);
+                        }
+                        else
+                        {
+                            l.X2 = (path.pathsIntersection[i][j + 1].X * (size / 2)) + (5 / 2);
+                            l.Y2 = (path.pathsIntersection[i][j + 1].Y * (size / 2)) + (5 / 2);
+                        }
+                        
+                        drawinLines.Add(l);
+                        canv.Children.Add(l);
+                    }
+                }
+            }
         }
 
         private (double, double) FindElemt(long id)

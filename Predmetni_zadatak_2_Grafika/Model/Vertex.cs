@@ -1,4 +1,6 @@
-﻿namespace Predmetni_zadatak_2_Grafika.Model
+﻿using System.Collections.Generic;
+
+namespace Predmetni_zadatak_2_Grafika.Model
 {
     public class Vertex
     {
@@ -6,6 +8,7 @@
         public int X { get; set; }
         public int Y { get; set; }
         public char Data { get; set; }
+        public List<Vertex> ConnectedTo { get; set; } = new List<Vertex>();
 
         public Vertex(int x, int y, char data)
         {
