@@ -9,7 +9,7 @@
  Title="MainWindow"
  Width="800"
  Height="800"
- Loaded="window_Loaded"
+ Loaded="Window_Loaded"
  mc:Ignorable="d">
     <Grid x:Name="grid">
         <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">

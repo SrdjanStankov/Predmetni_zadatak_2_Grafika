@@ -10,8 +10,6 @@ namespace Predmetni_zadatak_2_Grafika.Services
 {
     public static class Util
     {
-        private static StreamWriter stream = new StreamWriter("D:\\FTN\\Grafika\\Predmetni_zadatak_2_Grafika\\Predmetni_zadatak_2_Grafika\\bin\\Debug\\Error.txt", true) { AutoFlush = true };
-
         private static HashSet<(double, double)> usedCoords = new HashSet<(double, double)>();
 
         public static double ConvertToCanvas(double point, double scale, double start, double size, double width)
@@ -129,68 +127,7 @@ namespace Predmetni_zadatak_2_Grafika.Services
             return (newX, newY);
         }
 
-        public static (List<(double, double)> intersections, List<List<Vertex>> pathsIntersection) SearchBFSIntersection(Vertex[,] graph, Vertex root, Vertex end)
-        {
-            var visited = new HashSet<ValueTuple<int, int>>();
-            var neighboursToCheck = new Queue<Vertex>();
-            visited.Add((root.X, root.Y));
-            neighboursToCheck.Enqueue(root);
-
-            while (neighboursToCheck.Count > 0)
-            {
-                var current = neighboursToCheck.Dequeue();
-
-                if (current.X == end.X && current.Y == end.Y)
-                {
-                    var pathDevidedByIntersections = new List<List<Vertex>>();
-                    int index = 0;
-                    pathDevidedByIntersections.Add(new List<Vertex>());
-                    var intersections = new List<(double, double)>();
-                    var vert = current;
-                    while (vert.Parent != null)
-                    {
-                        pathDevidedByIntersections[index].Add(vert);
-                        if (vert.Data == 'v' && vert.Parent.Data == 0 && !intersections.Contains((vert.X, vert.Y)))
-                        {
-                            intersections.Add((vert.X, vert.Y));
-                            vert.Data = 'i';
-                            index++;
-                            pathDevidedByIntersections.Add(new List<Vertex>());
-                        }
-
-                        pathDevidedByIntersections[index].Add(vert); 
-                        vert.Data = vert.Data == 0 ? 'v' : vert.Data;
-                        vert = vert.Parent;
-                    }
-                    return (intersections, pathDevidedByIntersections);
-                }
-
-                foreach (var item in AdjacentTo(graph, current))
-                {
-                    if (!visited.Contains((item.X, item.Y)))
-                    {
-                        if (item.X == end.X && item.Y == end.Y)
-                        {
-                            visited.Add((item.X, item.Y));
-                            item.Parent = current;
-                            neighboursToCheck.Enqueue(item);
-                            break;
-                        }
-                        if (item.Data == 'o')
-                        {
-                            continue;
-                        }
-
-                        visited.Add((item.X, item.Y));
-                        item.Parent = current;
-                        neighboursToCheck.Enqueue(item);
-                    }
-                }
-            }
-            return (null, null);
-        }
-
-        public static List<Vertex> SearchBFS(Vertex[,] graph, Vertex root, Vertex end)
+        public static List<Vertex> SearchBFS(Vertex[,] graph, Vertex root, Vertex end, bool notAllowOverlap)
         {
             var visited = new HashSet<ValueTuple<int, int>>();
             var neighboursToCheck = new Queue<Vertex>();
@@ -211,6 +148,10 @@ namespace Predmetni_zadatak_2_Grafika.Services
                         vert.Data = vert.Data == 0 ? 'v' : vert.Data;
                         path.Add(vert.Parent);
                         vert = vert.Parent;
+                        if (!notAllowOverlap)
+                        {
+
+                        }
                     }
                     path.Reverse();
                     return path;
@@ -227,7 +168,7 @@ namespace Predmetni_zadatak_2_Grafika.Services
                             neighboursToCheck.Enqueue(item);
                             break;
                         }
-                        if (item.Data == 'o' || item.Data == 'v')
+                        if (item.Data == 'o' || (item.Data == 'v' && notAllowOverlap))
                         {
                             continue;
                         }
@@ -240,7 +181,8 @@ namespace Predmetni_zadatak_2_Grafika.Services
             }
             return null;
         }
-        private static List<Vertex> AdjacentTo(Vertex[,] graph, Vertex current)
+
+        public static List<Vertex> AdjacentTo(Vertex[,] graph, Vertex current)
         {
             var returnList = new List<Vertex>(4);
 
@@ -267,88 +209,53 @@ namespace Predmetni_zadatak_2_Grafika.Services
             return returnList;
         }
 
-        public static List<(double, double)> Search((double, double) startPoint, (double, double) endPoint)
+        public static List<Vertex> FindPath(Vertex[,] graph, Vertex start, Vertex end)
         {
-            var visitedPoints = new List<(double, double)>();
-            var currentPos = startPoint;
-            Console.SetOut(stream);
+            var visited = new HashSet<ValueTuple<int, int>>();
+            var neighboursToCheck = new Queue<Vertex>();
+            visited.Add((start.X, start.Y));
+            neighboursToCheck.Enqueue(start);
 
-            visitedPoints.Add(startPoint);
-            while (currentPos.Item1 != endPoint.Item1 || currentPos.Item2 != endPoint.Item2)
+            while (neighboursToCheck.Count > 0)
             {
-                // infinite recursion break
-                if (visitedPoints.Count > 400)
+                var current = neighboursToCheck.Dequeue();
+
+                if (current.X == end.X && current.Y == end.Y)
                 {
-                    Console.WriteLine($"Stuck: {startPoint} - {endPoint}");
-                    return null;
+                    var path = new List<Vertex>(visited.Count / 2);
+                    var vert = current;
+                    path.Add(vert);
+                    while (vert.Parent != null)
+                    {
+                        path.Add(vert.Parent);
+                        vert = vert.Parent;
+                    }
+                    path.Reverse();
+                    return path;
                 }
 
-                // ide po X
-                var potentialPos = (currentPos.Item1 > endPoint.Item1 ? currentPos.Item1 - 10 : currentPos.Item1 + 10, currentPos.Item2);
-                if (!usedCoords.Contains(potentialPos) && currentPos.Item1 != endPoint.Item1 && !visitedPoints.Contains(potentialPos))
+                foreach (var item in AdjacentTo(graph, current))
                 {
-                    visitedPoints.Add(potentialPos);
-                    currentPos = potentialPos;
-                    continue;
+                    if (!visited.Contains((item.X, item.Y)))
+                    {
+                        if (item.X == end.X && item.Y == end.Y)
+                        {
+                            visited.Add((item.X, item.Y));
+                            item.Parent = current;
+                            neighboursToCheck.Enqueue(item);
+                            break;
+                        }
+                        if (item.Data == 'v' || item.Data == 'i')
+                        {
+                            visited.Add((item.X, item.Y));
+                            item.Parent = current;
+                            neighboursToCheck.Enqueue(item);
+                        }
+                    }
                 }
-                potentialPos = (potentialPos.Item1 <= endPoint.Item1 ? potentialPos.Item1 - 20 : potentialPos.Item1 + 20, potentialPos.Item2);
-                if (!usedCoords.Contains(potentialPos) && currentPos.Item1 != endPoint.Item1 && !visitedPoints.Contains(potentialPos))
-                {
-                    visitedPoints.Add(potentialPos);
-                    currentPos = potentialPos;
-                    continue;
-                }
-
-                // ne moze vise po X
-                potentialPos = (currentPos.Item1, currentPos.Item2 > endPoint.Item2 ? currentPos.Item2 - 10 : currentPos.Item2 + 10);
-                if (!usedCoords.Contains(potentialPos) && currentPos.Item2 != endPoint.Item2 && !visitedPoints.Contains(potentialPos))
-                {
-                    visitedPoints.Add(potentialPos);
-                    currentPos = potentialPos;
-                    continue;
-                }
-                potentialPos = (potentialPos.Item1, potentialPos.Item2 <= endPoint.Item2 ? potentialPos.Item2 - 20 : potentialPos.Item2 + 20);
-                if (!usedCoords.Contains(potentialPos) && currentPos.Item2 != endPoint.Item2 && !visitedPoints.Contains(potentialPos))
-                {
-                    visitedPoints.Add(potentialPos);
-                    currentPos = potentialPos;
-                    continue;
-                }
-
-                // ne moze ni po Y
-                Console.WriteLine($"No XY: {startPoint} - {endPoint}");
-                return null;
             }
-
-            return visitedPoints;
+            return null;
         }
-
-        public static List<(double, double)> SearchOld((double, double) startPoint, (double, double) endPoint)
-        {
-            var visitedPoints = new List<(double, double)>();
-
-            var currentPos = startPoint;
-
-            //Level in Y
-            while (currentPos.Item2 != endPoint.Item2)
-            {
-                visitedPoints.Add((currentPos.Item1, currentPos.Item2));
-                currentPos.Item2 += currentPos.Item2 > endPoint.Item2 ? -10 : 10;
-            }
-            //Level in X
-            while (currentPos.Item1 != endPoint.Item1)
-            {
-                visitedPoints.Add((currentPos.Item1, currentPos.Item2));
-                currentPos.Item1 += currentPos.Item1 > endPoint.Item1 ? -10 : 10;
-            }
-
-            visitedPoints.Add((currentPos.Item1, currentPos.Item2));
-
-            usedCoords.UnionWith(visitedPoints);
-
-            return visitedPoints;
-        }
-
 
         public static void ToLatLon(double utmX, double utmY, int zoneUTM, out double latitude, out double longitude)
         {
