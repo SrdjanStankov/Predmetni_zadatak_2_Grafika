@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,8 +23,7 @@ namespace Predmetni_zadatak_2_Grafika
         private List<SwitchEntity> switchEntities = new List<SwitchEntity>();
         private List<LineEntity> lineEntities = new List<LineEntity>();
         private List<List<Vertex>> paths = new List<List<Vertex>>();
-        private List<Line> drawnLines = new List<Line>();
-        private LineEqualityComparer lineEqualityComparer = new LineEqualityComparer();
+        private HashSet<(double, double, double, double)> drawnLines = new HashSet<(double, double, double, double)>();
         private Vertex[,] vertMatrix;
         private double xScale;
         private double yScale;
@@ -168,19 +166,21 @@ namespace Predmetni_zadatak_2_Grafika
             {
                 for (int i = 0; i < path.Count - 1; i++)
                 {
-                    var l = new Line()
+                    //  X1, Y1, X2, Y2
+                    if (!(drawnLines.Contains(((path[i].X * (size / 2)) + (5 / 2), (path[i].Y * (size / 2)) + (5 / 2), (path[i + 1].X * (size / 2)) + (5 / 2), (path[i + 1].Y * (size / 2)) + (5 / 2)))
+                        // X2, Y2, X1, Y1
+                        || drawnLines.Contains(((path[i + 1].X * (size / 2)) + (5 / 2), (path[i + 1].Y * (size / 2)) + (5 / 2), (path[i].X * (size / 2)) + (5 / 2), (path[i].Y * (size / 2)) + (5 / 2)))))
                     {
-                        Stroke = Brushes.Black,
-                        StrokeThickness = 0.5,
-                        X1 = (path[i].X * (size / 2)) + (5 / 2),
-                        Y1 = (path[i].Y * (size / 2)) + (5 / 2),
-                        X2 = (path[i + 1].X * (size / 2)) + (5 / 2),
-                        Y2 = (path[i + 1].Y * (size / 2)) + (5 / 2)
-                    };
-
-                    if (!drawnLines.Contains(l, lineEqualityComparer))
-                    {
-                        drawnLines.Add(l);
+                        var l = new Line()
+                        {
+                            Stroke = Brushes.Black,
+                            StrokeThickness = 0.5,
+                            X1 = (path[i].X * (size / 2)) + (5 / 2),
+                            Y1 = (path[i].Y * (size / 2)) + (5 / 2),
+                            X2 = (path[i + 1].X * (size / 2)) + (5 / 2),
+                            Y2 = (path[i + 1].Y * (size / 2)) + (5 / 2)
+                        };
+                        drawnLines.Add(((path[i].X * (size / 2)) + (5 / 2), (path[i].Y * (size / 2)) + (5 / 2), (path[i + 1].X * (size / 2)) + (5 / 2), (path[i + 1].Y * (size / 2)) + (5 / 2)));
                         canv.Children.Add(l);
                     }
                 }
