@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Xml;
 using Predmetni_zadatak_2_Grafika.Model;
@@ -143,6 +144,7 @@ namespace Predmetni_zadatak_2_Grafika
                 var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Red, ToolTip = $"{item.Id} {item.Name}" };
                 Canvas.SetLeft(element, item.X);
                 Canvas.SetTop(element, item.Y);
+                element.MouseLeftButtonDown += OnClickScale;
                 canv.Children.Add(element);
             }
 
@@ -151,6 +153,7 @@ namespace Predmetni_zadatak_2_Grafika
                 var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Blue, ToolTip = $"{item.Id} {item.Name}" };
                 Canvas.SetLeft(element, item.X);
                 Canvas.SetTop(element, item.Y);
+                element.MouseLeftButtonDown += OnClickScale;
                 canv.Children.Add(element);
             }
 
@@ -159,6 +162,7 @@ namespace Predmetni_zadatak_2_Grafika
                 var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Green, ToolTip = $"{item.Id} {item.Name} {item.Status}" };
                 Canvas.SetLeft(element, item.X);
                 Canvas.SetTop(element, item.Y);
+                element.MouseLeftButtonDown += OnClickScale;
                 canv.Children.Add(element);
             }
             double x1;
@@ -208,6 +212,19 @@ namespace Predmetni_zadatak_2_Grafika
                     }
                 }
             }
+        }
+
+        private void OnClickScale(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var elipse = (Shape)sender;
+            var ani = new DoubleAnimation(elipse.ActualWidth * 10, TimeSpan.FromSeconds(.25))
+            {
+                AutoReverse = true
+            };
+            var transform = new ScaleTransform(1, 1, 2.5, 2.5);
+            elipse.RenderTransform = transform;
+            transform.BeginAnimation(ScaleTransform.ScaleXProperty, ani);
+            transform.BeginAnimation(ScaleTransform.ScaleYProperty, ani);
         }
 
         private void DrawCross(double x1, double y1)
