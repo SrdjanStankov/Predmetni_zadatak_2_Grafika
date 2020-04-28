@@ -118,10 +118,10 @@ namespace Predmetni_zadatak_2_Grafika
                 var root = vertMatrix[(int)(x1 / (size / 2)), (int)(y1 / (size / 2))];
                 var end = vertMatrix[(int)(x2 / (size / 2)), (int)(y2 / (size / 2))];
 
-                var path = Util.SearchBFS(vertMatrix, root, end, true);
+                var path = Util.SearchBFS(vertMatrix, root, end, true, item);
                 if (path == null)
                 {
-                    path = Util.SearchBFS(vertMatrix, root, end, false);
+                    path = Util.SearchBFS(vertMatrix, root, end, false, item);
                 }
                 paths.Add(path);
             }
@@ -140,7 +140,7 @@ namespace Predmetni_zadatak_2_Grafika
         {
             foreach (var item in substationEntities)
             {
-                var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Red };
+                var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Red, ToolTip = $"{item.Id} {item.Name}" };
                 Canvas.SetLeft(element, item.X);
                 Canvas.SetTop(element, item.Y);
                 canv.Children.Add(element);
@@ -148,7 +148,7 @@ namespace Predmetni_zadatak_2_Grafika
 
             foreach (var item in nodeEntities)
             {
-                var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Blue };
+                var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Blue, ToolTip = $"{item.Id} {item.Name}" };
                 Canvas.SetLeft(element, item.X);
                 Canvas.SetTop(element, item.Y);
                 canv.Children.Add(element);
@@ -156,7 +156,7 @@ namespace Predmetni_zadatak_2_Grafika
 
             foreach (var item in switchEntities)
             {
-                var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Green };
+                var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Green, ToolTip = $"{item.Id} {item.Name} {item.Status}" };
                 Canvas.SetLeft(element, item.X);
                 Canvas.SetTop(element, item.Y);
                 canv.Children.Add(element);
@@ -183,7 +183,8 @@ namespace Predmetni_zadatak_2_Grafika
                             X1 = x1,
                             Y1 = y1,
                             X2 = x2,
-                            Y2 = y2
+                            Y2 = y2,
+                            ToolTip = $"{path[i].Line.Id} {path[i].Line.Name}"
                         };
                         drawnLines.Add((x1, y1, x2, y2));
                         canv.Children.Add(l);

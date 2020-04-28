@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Xml;
 using Predmetni_zadatak_2_Grafika.Model;
@@ -127,7 +126,7 @@ namespace Predmetni_zadatak_2_Grafika.Services
             return (newX, newY);
         }
 
-        public static List<Vertex> SearchBFS(Vertex[,] graph, Vertex root, Vertex end, bool notAllowOverlap)
+        public static List<Vertex> SearchBFS(Vertex[,] graph, Vertex root, Vertex end, bool notAllowOverlap, LineEntity line)
         {
             var visited = new HashSet<ValueTuple<int, int>>();
             var neighboursToCheck = new Queue<Vertex>();
@@ -142,17 +141,16 @@ namespace Predmetni_zadatak_2_Grafika.Services
                 {
                     var path = new List<Vertex>(visited.Count / 2);
                     var vert = current;
+                    vert.Line = line;
                     path.Add(vert);
                     while (vert.Parent != null)
                     {
+                        vert.Line = line;
                         vert.Data = vert.Data == 0 ? 'v' : vert.Data;
                         path.Add(vert.Parent);
                         vert = vert.Parent;
-                        if (!notAllowOverlap)
-                        {
-
-                        }
                     }
+                    vert.Line = line;
                     path.Reverse();
                     return path;
                 }
@@ -207,54 +205,6 @@ namespace Predmetni_zadatak_2_Grafika.Services
                 returnList.Add(item);
             }
             return returnList;
-        }
-
-        public static List<Vertex> FindPath(Vertex[,] graph, Vertex start, Vertex end)
-        {
-            var visited = new HashSet<ValueTuple<int, int>>();
-            var neighboursToCheck = new Queue<Vertex>();
-            visited.Add((start.X, start.Y));
-            neighboursToCheck.Enqueue(start);
-
-            while (neighboursToCheck.Count > 0)
-            {
-                var current = neighboursToCheck.Dequeue();
-
-                if (current.X == end.X && current.Y == end.Y)
-                {
-                    var path = new List<Vertex>(visited.Count / 2);
-                    var vert = current;
-                    path.Add(vert);
-                    while (vert.Parent != null)
-                    {
-                        path.Add(vert.Parent);
-                        vert = vert.Parent;
-                    }
-                    path.Reverse();
-                    return path;
-                }
-
-                foreach (var item in AdjacentTo(graph, current))
-                {
-                    if (!visited.Contains((item.X, item.Y)))
-                    {
-                        if (item.X == end.X && item.Y == end.Y)
-                        {
-                            visited.Add((item.X, item.Y));
-                            item.Parent = current;
-                            neighboursToCheck.Enqueue(item);
-                            break;
-                        }
-                        if (item.Data == 'v' || item.Data == 'i')
-                        {
-                            visited.Add((item.X, item.Y));
-                            item.Parent = current;
-                            neighboursToCheck.Enqueue(item);
-                        }
-                    }
-                }
-            }
-            return null;
         }
 
         public static void ToLatLon(double utmX, double utmY, int zoneUTM, out double latitude, out double longitude)

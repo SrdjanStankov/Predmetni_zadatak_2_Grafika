@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Predmetni_zadatak_2_Grafika.Model
+﻿namespace Predmetni_zadatak_2_Grafika.Model
 {
     public class Vertex
     {
@@ -8,7 +6,7 @@ namespace Predmetni_zadatak_2_Grafika.Model
         public int X { get; set; }
         public int Y { get; set; }
         public char Data { get; set; }
-        public bool IsJunction { get; set; }
+        public LineEntity Line { get; set; }
 
         public Vertex(int x, int y, char data)
         {
