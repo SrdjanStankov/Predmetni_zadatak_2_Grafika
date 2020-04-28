@@ -25,6 +25,7 @@ namespace Predmetni_zadatak_2_Grafika
         private List<LineEntity> lineEntities = new List<LineEntity>();
         private List<List<Vertex>> paths = new List<List<Vertex>>();
         private HashSet<(double, double, double, double)> drawnLines = new HashSet<(double, double, double, double)>();
+        private List<(Shape shape, Brush original)> highlighted = new List<(Shape shape, Brush original)>();
         private Vertex[,] vertMatrix;
         private double xScale;
         private double yScale;
@@ -144,6 +145,7 @@ namespace Predmetni_zadatak_2_Grafika
                 var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Red, ToolTip = $"{item.Id} {item.Name}" };
                 Canvas.SetLeft(element, item.X);
                 Canvas.SetTop(element, item.Y);
+                vertMatrix[(int)item.X / (int)(size / 2), (int)item.Y / (int)(size / 2)].Self = element;
                 element.MouseLeftButtonDown += OnClickScale;
                 canv.Children.Add(element);
             }
@@ -153,6 +155,7 @@ namespace Predmetni_zadatak_2_Grafika
                 var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Blue, ToolTip = $"{item.Id} {item.Name}" };
                 Canvas.SetLeft(element, item.X);
                 Canvas.SetTop(element, item.Y);
+                vertMatrix[(int)item.X / (int)(size / 2), (int)item.Y / (int)(size / 2)].Self = element;
                 element.MouseLeftButtonDown += OnClickScale;
                 canv.Children.Add(element);
             }
@@ -162,6 +165,7 @@ namespace Predmetni_zadatak_2_Grafika
                 var element = new Ellipse() { Width = 5, Height = 5, Fill = Brushes.Green, ToolTip = $"{item.Id} {item.Name} {item.Status}" };
                 Canvas.SetLeft(element, item.X);
                 Canvas.SetTop(element, item.Y);
+                vertMatrix[(int)item.X / (int)(size / 2), (int)item.Y / (int)(size / 2)].Self = element;
                 element.MouseLeftButtonDown += OnClickScale;
                 canv.Children.Add(element);
             }
@@ -178,18 +182,22 @@ namespace Predmetni_zadatak_2_Grafika
                     x2 = (path[i + 1].X * (size / 2)) + (5 / 2);
                     y2 = (path[i + 1].Y * (size / 2)) + (5 / 2);
 
+                    path[i].ConnectedTo.Add(vertMatrix[path[0].X, path[0].Y].Self);
+                    path[i].ConnectedTo.Add(vertMatrix[path[path.Count - 1].X, path[path.Count - 1].Y].Self);
+
                     if (!(drawnLines.Contains((x1, y1, x2, y2)) || drawnLines.Contains((x2, y2, x1, y1))))
                     {
                         var l = new Line()
                         {
                             Stroke = Brushes.Black,
-                            StrokeThickness = 0.5,
+                            StrokeThickness = 1,
                             X1 = x1,
                             Y1 = y1,
                             X2 = x2,
                             Y2 = y2,
                             ToolTip = $"{path[i].Line.Id} {path[i].Line.Name}"
                         };
+                        l.MouseRightButtonDown += OnRightClickHighlightNodes;
                         drawnLines.Add((x1, y1, x2, y2));
                         canv.Children.Add(l);
 
@@ -211,6 +219,25 @@ namespace Predmetni_zadatak_2_Grafika
                         }
                     }
                 }
+            }
+        }
+
+        private void OnRightClickHighlightNodes(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var line = (Line)sender;
+            int x = (int)(line.X1 - (5 / 2)) / (int)(size / 2);
+            int y = (int)(line.Y1 - (5 / 2)) / (int)(size / 2);
+
+            foreach (var item in highlighted)
+            {
+                item.shape.Fill = item.original;
+            }
+            highlighted.Clear();
+
+            foreach (var item in vertMatrix[x, y].ConnectedTo)
+            {
+                highlighted.Add((item, item.Fill));
+                item.Fill = Brushes.Magenta;
             }
         }
 
