@@ -161,30 +161,60 @@ namespace Predmetni_zadatak_2_Grafika
                 Canvas.SetTop(element, item.Y);
                 canv.Children.Add(element);
             }
-
+            double x1;
+            double y1;
+            double x2;
+            double y2;
             foreach (var path in paths)
             {
                 for (int i = 0; i < path.Count - 1; i++)
                 {
-                    //  X1, Y1, X2, Y2
-                    if (!(drawnLines.Contains(((path[i].X * (size / 2)) + (5 / 2), (path[i].Y * (size / 2)) + (5 / 2), (path[i + 1].X * (size / 2)) + (5 / 2), (path[i + 1].Y * (size / 2)) + (5 / 2)))
-                        // X2, Y2, X1, Y1
-                        || drawnLines.Contains(((path[i + 1].X * (size / 2)) + (5 / 2), (path[i + 1].Y * (size / 2)) + (5 / 2), (path[i].X * (size / 2)) + (5 / 2), (path[i].Y * (size / 2)) + (5 / 2)))))
+                    x1 = (path[i].X * (size / 2)) + (5 / 2);
+                    y1 = (path[i].Y * (size / 2)) + (5 / 2);
+                    x2 = (path[i + 1].X * (size / 2)) + (5 / 2);
+                    y2 = (path[i + 1].Y * (size / 2)) + (5 / 2);
+
+                    if (!(drawnLines.Contains((x1, y1, x2, y2)) || drawnLines.Contains((x2, y2, x1, y1))))
                     {
                         var l = new Line()
                         {
                             Stroke = Brushes.Black,
                             StrokeThickness = 0.5,
-                            X1 = (path[i].X * (size / 2)) + (5 / 2),
-                            Y1 = (path[i].Y * (size / 2)) + (5 / 2),
-                            X2 = (path[i + 1].X * (size / 2)) + (5 / 2),
-                            Y2 = (path[i + 1].Y * (size / 2)) + (5 / 2)
+                            X1 = x1,
+                            Y1 = y1,
+                            X2 = x2,
+                            Y2 = y2
                         };
-                        drawnLines.Add(((path[i].X * (size / 2)) + (5 / 2), (path[i].Y * (size / 2)) + (5 / 2), (path[i + 1].X * (size / 2)) + (5 / 2), (path[i + 1].Y * (size / 2)) + (5 / 2)));
+                        drawnLines.Add((x1, y1, x2, y2));
                         canv.Children.Add(l);
+
+                        if (drawnLines.Select((item) => (item.Item1, item.Item2)).Where((item) => item == (x1, y1)).Count() >= 2)
+                        {
+                            DrawCross(x1, y1);
+                        }
+                        if (drawnLines.Select((item) => (item.Item1, item.Item2)).Where((item) => item == (x2, y2)).Count() >= 2)
+                        {
+                            DrawCross(x2, y2);
+                        }
+                        if (drawnLines.Select((item) => (item.Item3, item.Item4)).Where((item) => item == (x1, y1)).Count() >= 2)
+                        {
+                            DrawCross(x1, y1);
+                        }
+                        if (drawnLines.Select((item) => (item.Item3, item.Item4)).Where((item) => item == (x2, y2)).Count() >= 2)
+                        {
+                            DrawCross(x2, y2);
+                        }
                     }
                 }
             }
+        }
+
+        private void DrawCross(double x1, double y1)
+        {
+            var element = new Ellipse() { Width = 2.5, Height = 2.5, Fill = Brushes.Purple };
+            Canvas.SetLeft(element, x1 - (2.5 / 2));
+            Canvas.SetTop(element, y1 - (2.5 / 2));
+            canv.Children.Add(element);
         }
 
         private (double, double) FindElemt(long id)
