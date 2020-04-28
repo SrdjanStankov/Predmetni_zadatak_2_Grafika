@@ -11,12 +11,22 @@
  Height="800"
  Loaded="Window_Loaded"
  mc:Ignorable="d">
-    <Grid x:Name="grid">
+    <DockPanel x:Name="grid">
+        <Slider
+         x:Name="slider"
+         DockPanel.Dock="Top"
+         Maximum="10"
+         Minimum=".1"
+         Value="1" />
         <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
             <Canvas
              x:Name="canv"
              Width="2000"
-             Height="2000" />
+             Height="2000">
+                <Canvas.LayoutTransform>
+                    <ScaleTransform ScaleX="{Binding ElementName=slider, Path=Value}" ScaleY="{Binding ElementName=slider, Path=Value}" />
+                </Canvas.LayoutTransform>
+            </Canvas>
         </ScrollViewer>
-    </Grid>
+    </DockPanel>
 </Window>
