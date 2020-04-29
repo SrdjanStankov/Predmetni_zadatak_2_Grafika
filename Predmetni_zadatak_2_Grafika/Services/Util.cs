@@ -16,53 +16,27 @@ namespace Predmetni_zadatak_2_Grafika.Services
             return Math.Round((point - start) * scale / size) * size % width;
         }
 
-        public static void AddEntities(List<SubstationEntity> entites, XmlNodeList nodeList)
+        public static void AddEntities<T>(List<T> entities, XmlNodeList nodeList) where T : PowerEntity, new()
         {
             foreach (XmlNode item in nodeList)
             {
                 ToLatLon(double.Parse(item.SelectSingleNode("X").InnerText, CultureInfo.InvariantCulture), double.Parse(item.SelectSingleNode("Y").InnerText, CultureInfo.InvariantCulture), 34, out double x, out double y);
-                entites.Add(new SubstationEntity()
+                var entity = new T()
                 {
                     Id = long.Parse(item.SelectSingleNode("Id").InnerText, CultureInfo.InvariantCulture),
                     Name = item.SelectSingleNode("Name").InnerText,
                     X = x,
                     Y = y
-                });
-            }
-        }
-
-        public static void AddEntities(List<NodeEntity> entites, XmlNodeList nodeList)
-        {
-            foreach (XmlNode item in nodeList)
-            {
-                ToLatLon(double.Parse(item.SelectSingleNode("X").InnerText, CultureInfo.InvariantCulture), double.Parse(item.SelectSingleNode("Y").InnerText, CultureInfo.InvariantCulture), 34, out double x, out double y);
-                entites.Add(new NodeEntity()
+                };
+                if (typeof(T) == typeof(SwitchEntity))
                 {
-                    Id = long.Parse(item.SelectSingleNode("Id").InnerText, CultureInfo.InvariantCulture),
-                    Name = item.SelectSingleNode("Name").InnerText,
-                    X = x,
-                    Y = y
-                });
+                    (entity as SwitchEntity).Status = item.SelectSingleNode("Status").InnerText;
+                }
+                entities.Add(entity);
             }
         }
 
-        public static void AddEntities(List<SwitchEntity> entites, XmlNodeList nodeList)
-        {
-            foreach (XmlNode item in nodeList)
-            {
-                ToLatLon(double.Parse(item.SelectSingleNode("X").InnerText, CultureInfo.InvariantCulture), double.Parse(item.SelectSingleNode("Y").InnerText, CultureInfo.InvariantCulture), 34, out double x, out double y);
-                entites.Add(new SwitchEntity()
-                {
-                    Id = long.Parse(item.SelectSingleNode("Id").InnerText, CultureInfo.InvariantCulture),
-                    Name = item.SelectSingleNode("Name").InnerText,
-                    Status = item.SelectSingleNode("Status").InnerText,
-                    X = x,
-                    Y = y
-                });
-            }
-        }
-
-        public static void AddEntities(List<LineEntity> entites, XmlNodeList nodeList)
+        public static void AddLineEntities(List<LineEntity> entites, XmlNodeList nodeList)
         {
             foreach (XmlNode item in nodeList)
             {

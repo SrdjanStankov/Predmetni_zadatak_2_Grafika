@@ -19,17 +19,5 @@ namespace Predmetni_zadatak_2_Grafika.Model
             Y = y;
             Data = data;
         }
-
-        public Vertex(Vertex parent, int x, int y)
-        {
-            Parent = parent;
-            X = x;
-            Y = y;
-        }
-
-        public override string ToString()
-        {
-            return $"({X}, {Y})";
-        }
     }
 }

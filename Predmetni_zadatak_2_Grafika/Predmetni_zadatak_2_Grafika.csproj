@@ -77,7 +77,6 @@
   <ItemGroup>
     <Compile Include="Model\LineEntity.cs" />
     <Compile Include="Model\NodeEntity.cs" />
-    <Compile Include="Model\Point.cs" />
     <Compile Include="Model\PowerEntity.cs" />
     <Compile Include="Model\SubstationEntity.cs" />
     <Compile Include="Model\SwitchEntity.cs" />

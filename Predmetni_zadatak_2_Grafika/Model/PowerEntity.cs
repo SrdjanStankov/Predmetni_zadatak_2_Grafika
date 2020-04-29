@@ -2,11 +2,6 @@
 {
     public class PowerEntity
     {
-        public PowerEntity()
-        {
-
-        }
-
         public long Id { get; set; }
 
         public string Name { get; set; }
