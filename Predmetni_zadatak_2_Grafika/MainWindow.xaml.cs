@@ -25,6 +25,7 @@ namespace Predmetni_zadatak_2_Grafika
         private List<LineEntity> lineEntities = new List<LineEntity>();
         private List<List<Vertex>> paths = new List<List<Vertex>>();
         private HashSet<(double, double, double, double)> drawnLines = new HashSet<(double, double, double, double)>();
+        private Dictionary<(double x, double y), int> pointsOnSameCoords = new Dictionary<(double x, double y), int>();
         private List<(Shape shape, Brush original)> highlighted = new List<(Shape shape, Brush original)>();
         private Vertex[,] vertMatrix;
         private double xScale;
@@ -75,9 +76,24 @@ namespace Predmetni_zadatak_2_Grafika
 
 
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             DrawElements();
+            await Dispatcher.InvokeAsync(SetZIndex);
+        }
+
+        private void SetZIndex()
+        {
+            foreach (object item in canv.Children)
+            {
+                if (item is Ellipse)
+                {
+                    if ((item as Ellipse).Width == 5)
+                    {
+                        Panel.SetZIndex(item as UIElement, 5);
+                    }
+                }
+            }
         }
 
         private void SetCoords()
@@ -201,19 +217,29 @@ namespace Predmetni_zadatak_2_Grafika
                         drawnLines.Add((x1, y1, x2, y2));
                         canv.Children.Add(l);
 
-                        if (drawnLines.Select((item) => (item.Item1, item.Item2)).Where((item) => item == (x1, y1)).Count() >= 2)
+                        if (!pointsOnSameCoords.ContainsKey((x1, y1)))
+                        {
+                            pointsOnSameCoords.Add((x1, y1), 1);
+                        }
+                        else
+                        {
+                            pointsOnSameCoords[(x1, y1)]++;
+                        }
+
+                        if (!pointsOnSameCoords.ContainsKey((x2, y2)))
+                        {
+                            pointsOnSameCoords.Add((x2, y2), 1);
+                        }
+                        else
+                        {
+                            pointsOnSameCoords[(x2, y2)]++;
+                        }
+
+                        if (pointsOnSameCoords[(x1, y1)] > 2)
                         {
                             DrawCross(x1, y1);
                         }
-                        if (drawnLines.Select((item) => (item.Item1, item.Item2)).Where((item) => item == (x2, y2)).Count() >= 2)
-                        {
-                            DrawCross(x2, y2);
-                        }
-                        if (drawnLines.Select((item) => (item.Item3, item.Item4)).Where((item) => item == (x1, y1)).Count() >= 2)
-                        {
-                            DrawCross(x1, y1);
-                        }
-                        if (drawnLines.Select((item) => (item.Item3, item.Item4)).Where((item) => item == (x2, y2)).Count() >= 2)
+                        if (pointsOnSameCoords[(x2, y2)] > 2)
                         {
                             DrawCross(x2, y2);
                         }
